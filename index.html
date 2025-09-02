@@ -8,7 +8,7 @@
   3) TODO: Wrap EACH post in its own container (div) > Done
   4) TODO: Add a nav container with 3 internal links: #home, #create, #about > Done
   5) TODO: Add ONE external link to HTML docs that opens in a new tab >
-  6) TODO: Make the form use action="#" and method="post" >
+  6) TODO: Make the form use action="#" and method="post" > Done
   7) TODO: Add labels linked to inputs/textarea using for= and id= >
   8) TODO: Add name= and placeholder= for the name input and message textarea >
   9) TODO: Make BOTH fields required (name and message) >
@@ -94,19 +94,22 @@
     <!-- TODO (Forms - 3/4): Add name= and placeholder= attributes to both fields. -->
     <!-- TODO (Forms - 4/4): Make BOTH the name input and message textarea required. -->
     <!-- Optional: Add a Title input and a Category dropdown. -->
-    <form>
+    <form action="#" method="post">
+      <label for="name">Your Name</label>
       <!-- Name field - TODO: add label, id=, name=, placeholder=, and make required -->
       <!-- Example to achieve: <label for="name">Your Name:</label> -->
       <!-- Then: <input id="name" name="name" type="text" placeholder="Your name" required> -->
-      <input type="text">
+      <input id="name" name="name" type="text" placeholder="Your name" required >
 
       <!-- Message field - TODO: add label, id=, name=, placeholder=, and make required -->
       <!-- Example to achieve: <label for="message">Your Post:</label> -->
       <!-- Then: <textarea id="message" name="message" rows="4" placeholder="Write your post..." required></textarea> -->
-      <textarea rows="4"></textarea>
+    
+      <label for="message">Your Post</label>
+      <textarea id="message" name="message" rows="4" placeholder="Write your post" required></textarea>
 
       <!-- Submit button - TODO: add type="submit" to the button below -->
-      <button>Post</button>
+      <button type="submit">Post</button>
     </form>
 
     <!-- ABOUT SECTION -->
