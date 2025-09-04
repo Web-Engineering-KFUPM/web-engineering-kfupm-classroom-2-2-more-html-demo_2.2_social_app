@@ -17,6 +17,7 @@
  12) TODO: Close the main container at the end of the page
  13) TODO: Link an external CSS file (styles.css) in the <head>
 -->
+  <div id="app">
   
 <html lang="en">
   <head>
@@ -97,11 +98,14 @@
     <!-- TODO (Forms - 3/4): Add name= and placeholder= attributes to both fields. -->
     <!-- TODO (Forms - 4/4): Make BOTH the name input and message textarea required. -->
     <!-- Optional: Add a Title input and a Category dropdown. -->
-    <form>
+    <form action="#" method="post" class="card">
       <!-- Name field - TODO: add label, id=, name=, placeholder=, and make required -->
       <!-- Example to achieve: <label for="name">Your Name:</label> -->
       <!-- Then: <input id="name" name="name" type="text" placeholder="Your name" required> -->
-      <input type="text">
+      <div class="form-group">
+    <label for="name">Your Name:</label>
+    <input id="name" name="name" type="text" placeholder="Your name" required>
+      </div>
 
       <!-- Message field - TODO: add label, id=, name=, placeholder=, and make required -->
       <!-- Example to achieve: <label for="message">Your Post:</label> -->
@@ -121,5 +125,7 @@
     <p>© 2024 Web Fundamentals</p>
 
     <!-- TODO: Close your main container here if you opened one at the top. -->
+     
   </body>
 </html>
+</div>
