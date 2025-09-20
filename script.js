@@ -43,7 +43,6 @@ function resultRow(id, desc, pass, pts) {
 function grade(html) {
   const $ = load(html, { decodeEntities: false });
 
-  const $body = $('body');
   const $head = $('head');
   const $forms = $('form');
   const $firstForm = $forms.first();
@@ -59,10 +58,10 @@ function grade(html) {
   const $navContainer = $('nav').first().length ? $('nav').first() : $('.nav').first();
   const hasNavContainer = $navContainer.length > 0;
 
-  const internalAnchorsCount = $('a[href^="#"]').length;         // internal links like #home, #create, #about
-  const hasAnyExternalBlank = $('a[target="_blank"]').length > 0; // any external link opening new tab
+  const internalAnchorsCount = $('a[href^="#"]').length;         // internal: #home, #create, #about
+  const hasAnyExternalBlank = $('a[target="_blank"]').length > 0;
 
-  // Posts: at least one "post" wrapper with an h4 + p inside (order not strict)
+  // Posts: at least one ".post" wrapper with h4 + p inside (order not strict)
   const hasPostWrapper = $('.post').toArray().some(div => {
     const $d = $(div);
     const hasH4 = $d.find('h4').length > 0;
@@ -76,11 +75,12 @@ function grade(html) {
     String($firstForm.attr('action') || '').trim().length > 0 &&
     String($firstForm.attr('method') || '').toLowerCase() === 'post';
 
-  // label[for] has a matching control id in the DOM
+  // Node-safe label→control linkage (no CSS.escape)
   const labelForMatches =
     $('label[for]').toArray().some(lab => {
       const targetId = ($(lab).attr('for') || '').trim();
-      return targetId && $(`#${CSS.escape(targetId)}`).length > 0;
+      if (!targetId) return false;
+      return $('[id]').toArray().some(el => (($(el).attr('id') || '') === targetId));
     });
 
   // At least one text input and one textarea with name+placeholder (content ignored)
@@ -94,7 +94,7 @@ function grade(html) {
     return ($t.attr('name') || '').trim() && ($t.attr('placeholder') || '').trim();
   });
 
-  // Required fields: at least two required controls (e.g., input + textarea)
+  // Required fields: at least two required controls
   const requiredControlsCount = $('input[required], textarea[required], select[required]').length;
   const hasTwoRequired = requiredControlsCount >= 2;
 
@@ -144,7 +144,8 @@ function grade(html) {
   qualChecks.push(resultRow('charset', 'Has <meta charset> (or equivalent)', hasCharset, 6));
   const titleTxt = ($('head title').first().text() || '').trim();
   qualChecks.push(resultRow('title', '<title> present & non-empty', titleTxt.length > 0, 4));
-  qualChecks.push(resultRow('css_linked', 'Linked external CSS (styles.css) in <head> (optional)', hasLinkedCSS, 3));
+  const hasLinkedCSSCheck = hasLinkedCSS; // optional but rewarded
+  qualChecks.push(resultRow('css_linked', 'Linked external CSS (styles.css) in <head> (optional)', hasLinkedCSSCheck, 3));
 
   const qualScore = qualChecks.reduce((s, r) => s + r.ptsEarned, 0);
   const qualMax = qualChecks.reduce((s, r) => s + r.ptsMax, 0);
