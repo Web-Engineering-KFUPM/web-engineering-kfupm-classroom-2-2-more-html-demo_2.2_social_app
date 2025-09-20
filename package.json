@@ -1,13 +1,12 @@
 {
-  "name": "lab-2.2-more-html",
-   "version": "1.1.0",
+  "name": "Lab-2-2-more-html",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "grade": "node grade.js"
+    "grade": "node script.js"
   },
   "dependencies": {
-    "cheerio": "^1.0.0",
-    "fs-extra": "^11.2.0"
+    "cheerio": "^1.0.0-rc.12"
   }
 }
