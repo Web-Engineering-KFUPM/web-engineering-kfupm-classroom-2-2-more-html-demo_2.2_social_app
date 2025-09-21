@@ -1,0 +1,113 @@
+name: Autograde - Lab 2-2 (Simple Social Media Page)
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+env:
+  # === Assignment deadline in UTC ===
+  # Example: Local 2025-09-04 20:59 AST (UTC+3) -> 2025-09-04T17:59:00Z
+  DEADLINE_UTC: "2025-09-04T17:59:00Z"
+
+  # HTML file students should submit
+  HTML_FILE: "index.html"
+
+jobs:
+  grade:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compute submission-time status
+        id: submission_time
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Deadline (UTC):  ${DEADLINE_UTC}"
+          latest_ts="$(git log -1 --format=%cI)"
+          echo "Latest commit:   ${latest_ts}"
+
+          dl_epoch=$(date -u -d "${DEADLINE_UTC}" +%s)
+          sub_epoch=$(date -u -d "${latest_ts}" +%s)
+
+          if [ "${sub_epoch}" -le "${dl_epoch}" ]; then
+            status="on-time"
+            echo "On-time submission"
+          else
+            status="late"
+            echo "Late submission (half credit in script)"
+          fi
+
+          # Always pass 25; script will cap to 12.5 when late.
+          echo "points=25" >> "$GITHUB_OUTPUT"
+          echo "status=${status}" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install deps (use ci if lockfile exists)
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -f package-lock.json ]]; then
+            echo "package-lock.json found → using npm ci"
+            npm ci
+          else
+            echo "No lockfile → using npm install"
+            npm install --no-audit --no-fund
+          fi
+
+      - name: Run autograder
+        run: npm run grade
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          HTML_FILE: ${{ env.HTML_FILE }}
+          SUBMISSION_POINTS: ${{ steps.submission_time.outputs.points }}
+          SUBMISSION_STATUS: ${{ steps.submission_time.outputs.status }}
+
+      - name: Upload artifacts (CSV/JSON/MD)
+        uses: actions/upload-artifact@v4
+        with:
+          name: grading-artifacts
+          path: |
+            GRADE.md
+            grade_report.json
+            grade_report.csv
+
+      - name: Create or update grading issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const title = 'Automated Grade: Lab 2-2 — Simple Social Media Page';
+            const body = fs.readFileSync('GRADE.md', 'utf8');
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open'
+            });
+            const existing = issues.find(i => i.title === title);
+            if (existing) {
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.number,
+                body
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ['grading','autograde']
+              });
+            }
