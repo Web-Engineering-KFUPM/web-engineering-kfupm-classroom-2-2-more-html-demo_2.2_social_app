@@ -9,9 +9,7 @@
   --primary-hover: #1d4ed8;
   --border: #e5e7eb;
 }
-
 * { box-sizing: border-box; }
-
 body {
   margin: 0;
   padding: 24px;
